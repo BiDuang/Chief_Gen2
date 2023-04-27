@@ -1,0 +1,19 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" Width="1060" Height="600"
+             x:Class="Chief_Reloaded.Views.Pages.WoolCInstallPage">
+    <Grid>
+        <Grid>
+            <Button HorizontalAlignment="Left" VerticalAlignment="Top" Margin="30" CornerRadius="30"
+                    Width="40" Height="40" Opacity="0.7" Background="Transparent" BorderThickness="3"
+                    BorderBrush="White" x:Name="ReturnIndexButton" Click="ReturnIndexButton_OnClick">
+                <PathIcon Data="{StaticResource arrow_left_regular}" Height="20" Width="20" />
+            </Button>
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="90,35,0,0"
+                       Text="安装 Woolang 编译器" FontSize="22" FontWeight="Bold" Opacity="0.6" FontFamily="Microsoft YaHei" />
+        </Grid>
+
+    </Grid>
+</UserControl>
