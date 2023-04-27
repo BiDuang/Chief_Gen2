@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
@@ -23,5 +24,10 @@ public partial class WoolCInstallPage : UserControl
         var window = (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!.MainWindow;
         var control = window.Find<TransitioningContentControl>("ContentControl");
         control.Content = new MainPage();
+    }
+
+    private void ReturnLastButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
     }
 }
