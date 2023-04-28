@@ -30,4 +30,9 @@ public partial class WoolCInstallPage : UserControl
     {
         throw new NotImplementedException();
     }
+
+    private void InstallWoolangC_OnClick(object? sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
 }

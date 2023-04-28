@@ -23,7 +23,7 @@
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,35,0,0" x:Name="ModeText"
                        Text="更新" FontSize="22" FontWeight="Bold" Opacity="0.6" FontFamily="Microsoft YaHei" />
         </StackPanel>
-        <Grid VerticalAlignment="Center" x:Name="Startup" IsVisible="False">
+        <Grid VerticalAlignment="Center" x:Name="Startup">
             <TextBlock FontFamily="Microsoft YaHei" Margin="90,0,0,0" FontSize="16"
                        Text="Chief 在你的设备上发现了已安装的 Woolang 编译器，您可以直接沿用已有设定更新：" />
             <Button x:Name="UpdateWoolangC" Margin="90,40,0,0" VerticalContentAlignment="Center"
@@ -36,14 +36,14 @@
             <TextBlock FontFamily="Microsoft YaHei" Margin="90,100,0,0" FontSize="16"
                        Text="或者，您也可以全新安装 Woolang 到指定目录：" />
             <Button x:Name="InstallWoolangC" Margin="90,140,0,0" VerticalContentAlignment="Center"
-                    VerticalAlignment="Top" HorizontalAlignment="Left" Height="40">
+                    VerticalAlignment="Top" HorizontalAlignment="Left" Height="40" Click="InstallWoolangC_OnClick">
                 <StackPanel Orientation="Horizontal">
                     <PathIcon Data="{StaticResource apps_regular}" />
                     <TextBlock FontFamily="Microsoft YaHei" Text="全新安装 Woolang 编译器" Margin="5,0,5,0" />
                 </StackPanel>
             </Button>
         </Grid>
-        <Grid VerticalAlignment="Center" x:Name="FreshStartup">
+        <Grid VerticalAlignment="Center" x:Name="FreshInstallPanel" IsVisible="False">
             <TextBlock FontFamily="Microsoft YaHei" Margin="90,0,0,0" FontSize="16"
                        Text="欢迎使用 Woolang！Woolang 是一门优秀的静态强类型脚本语言，让我们先从安装 Woolang 编译器开始。" />
             <TextBlock FontFamily="Microsoft YaHei" Margin="90,40,0,0" FontSize="16"
