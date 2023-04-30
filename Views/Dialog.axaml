@@ -2,9 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="150"
+        mc:Ignorable="d" Width="550" Height="250"
         x:Class="Chief_Reloaded.Views.Dialog"
 
+        WindowStartupLocation="CenterScreen"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur"
         CanResize="False"
@@ -22,6 +23,34 @@
                     MaterialOpacity="0.65" />
             </ExperimentalAcrylicBorder.Material>
         </ExperimentalAcrylicBorder>
-        <Grid />
+        <Grid>
+            <Grid VerticalAlignment="Top" Opacity="0.85">
+                <PathIcon x:Name="ErrorIcon" Data="{DynamicResource error_circle_regular}" Width="25" Height="25"
+                          Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
+                <PathIcon x:Name="WarningIcon" Data="{DynamicResource warning_regular}" Width="25" Height="25"
+                          Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
+                <PathIcon x:Name="InfoIcon" Data="{DynamicResource info_regular}" Width="25" Height="25"
+                          Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
+                <PathIcon x:Name="NoticeIcon" Data="{DynamicResource star_regular}" Width="25" Height="25"
+                          Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
+                <TextBlock x:Name="DialogTitle" Text="对话框" Margin="70,20,0,0" FontFamily="Microsoft YaHei"
+                           FontSize="18" HorizontalAlignment="Left" />
+                <Button HorizontalAlignment="Right" Margin="0,15,20,0" Width="25" Height="25" Opacity="0.8"
+                        x:Name="DialogCloseButton" Click="DialogCloseButton_OnClick">
+                    <PathIcon Data="{StaticResource dismiss_regular}" Width="10" Height="10" />
+                </Button>
+            </Grid>
+            <TextBlock x:Name="DialogContentBlock" FontFamily="Microsoft YaHei" FontSize="12" Margin="30,80,0,0"
+                       Text="内容样式" />
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.8"
+                        Margin="0,0,0,10">
+                <Button x:Name="CancelButton" Content="取消" FontFamily="Microsoft YaHei" FontSize="12"
+                        HorizontalContentAlignment="Center" Click="CancelButton_OnClick"
+                        Width="60" />
+                <Button x:Name="ConfirmButton" Content="确认" FontFamily="Microsoft YaHei" FontSize="12"
+                        HorizontalContentAlignment="Center" Background="#174d7f" Click="ConfirmButton_OnClick"
+                        Width="60" Margin="10,0,0,0" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>
