@@ -18,10 +18,12 @@
             </Button>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,35,0,0" x:Name="ModuleText"
                        Text="Woolang 编译器" FontSize="22" FontWeight="Bold" Opacity="0.6" FontFamily="Microsoft YaHei" />
-            <PathIcon Data="{StaticResource chevron_right_regular}" Height="20" Width="20" Margin="15,32,0,0"
-                      Opacity="0.3" />
-            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,35,0,0" x:Name="ModeText"
-                       Text="更新" FontSize="22" FontWeight="Bold" Opacity="0.6" FontFamily="Microsoft YaHei" />
+            <Grid x:Name="Crumbs" IsVisible="False">
+                <PathIcon Data="{StaticResource chevron_right_regular}" Height="20" Width="20" Margin="0,32,40,0"
+                          Opacity="0.3" />
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,35,0,0" x:Name="ModeText"
+                           Text="更新" FontSize="22" FontWeight="Bold" Opacity="0.6" FontFamily="Microsoft YaHei" />
+            </Grid>
         </StackPanel>
         <Grid VerticalAlignment="Center" x:Name="Startup" IsVisible="False">
             <TextBlock FontFamily="Microsoft YaHei" Margin="90,0,0,0" FontSize="16"
@@ -43,7 +45,7 @@
                 </StackPanel>
             </Button>
         </Grid>
-        <StackPanel Orientation="Vertical" VerticalAlignment="Center" x:Name="FreshInstallPanel" IsVisible="True">
+        <StackPanel Orientation="Vertical" VerticalAlignment="Center" x:Name="FreshInstallPanel" IsVisible="False">
             <TextBlock FontFamily="Microsoft YaHei" Margin="90,0,0,0" FontSize="16"
                        Text="欢迎使用 Woolang！Woolang 是一门优秀的静态强类型脚本语言，让我们先从安装 Woolang 编译器开始。" />
             <TextBlock FontFamily="Microsoft YaHei" Margin="90,15,0,0" FontSize="16"
@@ -60,6 +62,37 @@
                     x:Name="InstallContinueButton" Click="InstallContinueButton_OnClick"
                     Content="继续" FontSize="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
         </StackPanel>
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="InstallModeSelectionPanel"
+              IsVisible="False">
+            <TextBlock HorizontalAlignment="Center" FontFamily="Microsoft YaHei" Margin="0,10,0,0" FontSize="18"
+                       Text="您希望以何种方式安装 Woolang 编译器？" />
+            <StackPanel Orientation="Horizontal">
+                <Button Width="170" Height="300" Opacity="0.7" Margin="0,60,0,0" x:Name="FastInstallButton"
+                        Click="FastInstallButton_OnClick">
+                    <Grid>
+                        <ToolTip.Tip>
+                            <TextBlock FontFamily="Microsoft YaHei"
+                                       Text="从服务器下载并安装已构建好的最新发行版本 Woolang 编译器" />
+                        </ToolTip.Tip>
+                        <PathIcon Data="{StaticResource cloud_download_regular}" Width="60" Height="60" />
+                        <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="快速安装"
+                                   FontSize="18" FontFamily="Microsoft YaHei" />
+                    </Grid>
+                </Button>
+                <Button Width="170" Height="300" Opacity="0.7" Margin="30,60,0,0" x:Name="BuildInstallButton"
+                        Click="BuildInstallButton_OnClick">
+                    <Grid>
+                        <ToolTip.Tip>
+                            <TextBlock FontFamily="Microsoft YaHei"
+                                       Text="从服务器获取源码，在本地编译、构建并安装任一版本的 Woolang 编译器" />
+                        </ToolTip.Tip>
+                        <PathIcon Data="{StaticResource window_dev_tools_regular}" Width="60" Height="60" />
+                        <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="编译安装"
+                                   FontSize="18" FontFamily="Microsoft YaHei" />
+                    </Grid>
+                </Button>
+            </StackPanel>
+        </Grid>
         <Grid VerticalAlignment="Center" x:Name="MultiWoolCPanel" IsVisible="False">
             <PathIcon Data="{StaticResource search_info_regular}" Height="20" Width="20" Margin="0,0,860,115" />
             <TextBlock FontFamily="Microsoft YaHei" Margin="120,0,0,0" FontSize="16"
@@ -81,8 +114,12 @@
                          IsVisible="True" />
             <TextBox Width="860" Height="250" Margin="0,20,0,0" IsVisible="False" x:Name="InstallingOutputBox"
                      IsReadOnly="True" Text="正在准备构建 Woolang 编译器..." FontFamily="Microsoft YaHei" />
-            <TextBlock FontFamily="Microsoft YaHei" Margin="0,60,0,0" FontSize="14"
+            <TextBlock FontFamily="Microsoft YaHei" Margin="0,60,0,0" FontSize="14" x:Name="InstallingTip"
                        Text="请不要关闭 Chief 或您的计算机" TextAlignment="Center" />
+            <Button FontFamily="Microsoft YaHei" Margin="0,60,0,0" FontSize="14" x:Name="InstallationCompletedButton"
+                    Content="安装完成" HorizontalContentAlignment="Center" HorizontalAlignment="Center" IsVisible="False"
+                    Width="100"
+                    Click="InstallationCompletedButton_OnClick" />
         </StackPanel>
     </Grid>
 </UserControl>

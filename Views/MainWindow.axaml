@@ -50,7 +50,7 @@
             </Button>
         </Grid>
 
-        <TransitioningContentControl x:Name="ContentControl">
+        <TransitioningContentControl x:Name="ContentControl" Content="">
             <TransitioningContentControl.PageTransition>
                 <CrossFade Duration="00:00:00.500" />
             </TransitioningContentControl.PageTransition>

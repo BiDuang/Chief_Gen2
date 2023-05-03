@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -16,9 +17,24 @@ namespace Chief_Reloaded.Views.Pages;
 
 public partial class WoolCInstallPage : UserControl
 {
+    private bool IsFastInstall;
+
     public WoolCInstallPage()
     {
         InitializeComponent();
+        Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            if (await CheckWoolangInstallStatus())
+                Startup.IsVisible = true;
+            else
+                FreshInstallPanel.IsVisible = true;
+        });
+    }
+
+    private static void SwitchControlVisibility(Visual from, Visual to)
+    {
+        var transition = new CrossFade(TimeSpan.FromMilliseconds(500));
+        transition.Start(from, to, new CancellationToken());
     }
 
     private void ReturnIndexButton_OnClick(object? sender, RoutedEventArgs e)
@@ -28,19 +44,101 @@ public partial class WoolCInstallPage : UserControl
         control.Content = new MainPage();
     }
 
-    private void ReturnLastButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void ReturnLastButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        if (Startup.IsVisible)
+        {
+            ReturnIndexButton_OnClick(sender, e);
+        }
+        else if (InstallModeSelectionPanel.IsVisible)
+        {
+            if (await CheckWoolangInstallStatus())
+            {
+                Crumbs.IsVisible = false;
+                SwitchControlVisibility(InstallModeSelectionPanel, Startup);
+            }
+            else
+            {
+                ReturnIndexButton_OnClick(sender, e);
+            }
+        }
+        else if (FreshInstallPanel.IsVisible)
+        {
+            SwitchControlVisibility(FreshInstallPanel, InstallModeSelectionPanel);
+        }
+        else if (MultiWoolCPanel.IsVisible)
+        {
+            Crumbs.IsVisible = false;
+            SwitchControlVisibility(MultiWoolCPanel, Startup);
+        }
     }
 
     private void InstallWoolangC_OnClick(object? sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        Crumbs.IsVisible = true;
+        ModeText.Text = "安装";
+        SwitchControlVisibility(Startup, InstallModeSelectionPanel);
     }
 
     private void UpdateWoolangC_OnClick(object? sender, RoutedEventArgs e)
     {
+        Crumbs.IsVisible = true;
+        ModeText.Text = "更新";
         throw new NotImplementedException();
+    }
+
+    private async void InstallContinueButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(InstallationPathBox.Text) || !Directory.Exists(InstallationPathBox.Text))
+        {
+            var dialog = new Dialog();
+            dialog.InitDialog(Dialog.DialogType.Error, "无效的安装路径", "请输入或选择一个有效且存在的安装路径", true);
+            await dialog.ShowDialog(
+                (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
+                .MainWindow);
+            return;
+        }
+
+        SwitchControlVisibility(FreshInstallPanel, ProcessingPanel);
+        ReturnLastButton.IsEnabled = false;
+        ReturnIndexButton.IsEnabled = false;
+        var result = await Task.Run(InstallWoolangCompiler);
+        ReturnIndexButton.IsEnabled = true;
+        InstallingTitle.Text = "安装完成";
+        InstallingSubTitle.IsVisible = false;
+        SwitchControlVisibility(InstallingTip, InstallationCompletedButton);
+    }
+
+    private void OpenFolderDialogButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFolderDialog
+        {
+            Title = "请选择 Woolang 编译器的安装路径",
+            Directory = Environment.CurrentDirectory
+        };
+        var result = dialog.ShowAsync(
+            (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
+            .MainWindow).Result;
+        if (string.IsNullOrEmpty(result)) return;
+
+        InstallationPathBox.Text = result;
+    }
+
+    private static async Task<bool> CheckWoolangInstallStatus()
+    {
+        var process = Process.Start(new ProcessStartInfo
+        {
+            FileName = "woodriver.exe",
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        });
+        var output = await process!.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+
+        var regex = new Regex(@"\x1B\[[0-9;]*[mK]");
+        output = regex.Replace(output, "");
+        return output.StartsWith("Woolang ");
     }
 
     private async Task<bool> InstallWoolangCompiler()
@@ -112,8 +210,27 @@ public partial class WoolCInstallPage : UserControl
         if (File.Exists(cmakePath))
         {
             await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在获取 Woolang 源码..."; });
+            try
+            {
+                Repository.Clone("https://git.cinogama.net/cinogamaproject/woolang", repoPath);
+            }
+            catch (LibGit2SharpException)
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    var dialog = new Dialog();
+                    dialog.InitDialog(Dialog.DialogType.Error, "未能找到 Visual Studio 构建工具",
+                        "构建 Windows 版本的 Woolang 编译器必须使用 Visual Studio 的 MSBuild 构建工具。\n请安装后重试。",
+                        true);
+                    var window = (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
+                        .MainWindow;
+                    var control = window.Find<TransitioningContentControl>("ContentControl");
+                    dialog.ShowDialog(window);
+                    control.Content = new WoolCInstallPage();
+                });
+                return false;
+            }
 
-            Repository.Clone("https://git.cinogama.net/cinogamaproject/woolang", repoPath);
             var repo = new Repository(repoPath);
             var branch = repo.Branches["remotes/origin/release"];
             if (branch == null) return false;
@@ -164,8 +281,7 @@ public partial class WoolCInstallPage : UserControl
             });
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                InstallingProgressBar.IsVisible = false;
-                InstallingOutputBox.IsVisible = true;
+                SwitchControlVisibility(InstallingProgressBar, InstallingOutputBox);
             });
             var msbuildPath = Path.Combine(vsInstallationPath, "MSBuild", "Current", "Bin", "MSBuild.exe");
             process = Process.Start(
@@ -198,41 +314,21 @@ public partial class WoolCInstallPage : UserControl
         return false;
     }
 
-    private async void InstallContinueButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (string.IsNullOrEmpty(InstallationPathBox.Text) || !Directory.Exists(InstallationPathBox.Text))
-        {
-            var dialog = new Dialog();
-            dialog.InitDialog(Dialog.DialogType.Error, "无效的安装路径", "请输入或选择一个有效且存在的安装路径", true);
-            await dialog.ShowDialog(
-                (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
-                .MainWindow);
-            return;
-        }
 
-        FreshInstallPanel.IsVisible = false;
-        ProcessingPanel.IsVisible = true;
-        var result = await Task.Run(InstallWoolangCompiler);
+    private void FastInstallButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        IsFastInstall = true;
+        SwitchControlVisibility(InstallModeSelectionPanel, FreshInstallPanel);
     }
 
-    private void OpenFolderDialogButton_OnClick(object? sender, RoutedEventArgs e)
+    private void BuildInstallButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFolderDialog
-        {
-            Title = "选择 Woolang 编译器的安装路径",
-            Directory = Environment.CurrentDirectory
-        };
-        var result = dialog.ShowAsync(
-            (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
-            .MainWindow).Result;
-        if (string.IsNullOrEmpty(result)) return;
-
-        InstallationPathBox.Text = result;
+        IsFastInstall = false;
+        SwitchControlVisibility(InstallModeSelectionPanel, FreshInstallPanel);
     }
 
-    private static void PanelSwitchAnimation(Visual from, Visual to)
+    private void InstallationCompletedButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var transition = new CrossFade(TimeSpan.FromSeconds(0.5));
-        transition.Start(from, to, new CancellationToken()).Wait();
+        ReturnIndexButton_OnClick(sender, e);
     }
 }
