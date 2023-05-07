@@ -5,8 +5,13 @@
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
-
     <Application.Styles>
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="Microsoft YaHei, Menlo, Noto Sans CJK SC" />
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="FontFamily" Value="Microsoft YaHei, Menlo, Noto Sans CJK SC" />
+        </Style>
         <FluentTheme Mode="Dark" />
         <StyleInclude Source="avares://Chief_Reloaded/Icons.axaml" />
     </Application.Styles>

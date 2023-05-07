@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -11,13 +14,16 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Downloader;
+using ICSharpCode.SharpZipLib.Zip;
 using LibGit2Sharp;
+using Newtonsoft.Json.Linq;
 
 namespace Chief_Reloaded.Views.Pages;
 
 public partial class WoolCInstallPage : UserControl
 {
-    private bool IsFastInstall;
+    private bool _isFastInstall;
 
     public WoolCInstallPage()
     {
@@ -27,7 +33,12 @@ public partial class WoolCInstallPage : UserControl
             if (await CheckWoolangInstallStatus())
                 Startup.IsVisible = true;
             else
-                FreshInstallPanel.IsVisible = true;
+            {
+                ReturnLastButton.IsEnabled = false;
+                Crumbs.IsVisible = true;
+                ModeText.Text = "安装";
+                InstallModeSelectionPanel.IsVisible = true;
+            }
         });
     }
 
@@ -102,11 +113,26 @@ public partial class WoolCInstallPage : UserControl
         SwitchControlVisibility(FreshInstallPanel, ProcessingPanel);
         ReturnLastButton.IsEnabled = false;
         ReturnIndexButton.IsEnabled = false;
-        var result = await Task.Run(InstallWoolangCompiler);
-        ReturnIndexButton.IsEnabled = true;
-        InstallingTitle.Text = "安装完成";
-        InstallingSubTitle.IsVisible = false;
-        SwitchControlVisibility(InstallingTip, InstallationCompletedButton);
+        var result = false;
+        if (_isFastInstall)
+            result = await Task.Run(FastInstallWoolangCompiler);
+        else
+            result = await Task.Run(InstallWoolangCompiler);
+
+        if (result)
+        {
+            ReturnIndexButton.IsEnabled = true;
+            InstallingTitle.Text = "安装完成";
+            InstallingSubTitle.IsVisible = false;
+            SwitchControlVisibility(InstallingTip, InstallationCompletedButton);
+        }
+        else
+        {
+            ReturnIndexButton.IsEnabled = true;
+            InstallingTitle.Text = "安装失败";
+            InstallingSubTitle.IsVisible = false;
+            SwitchControlVisibility(InstallingTip, InstallationCompletedButton);
+        }
     }
 
     private void OpenFolderDialogButton_OnClick(object? sender, RoutedEventArgs e)
@@ -126,19 +152,128 @@ public partial class WoolCInstallPage : UserControl
 
     private static async Task<bool> CheckWoolangInstallStatus()
     {
-        var process = Process.Start(new ProcessStartInfo
+        var output = string.Empty;
+        try
         {
-            FileName = "woodriver.exe",
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        });
-        var output = await process!.StandardOutput.ReadToEndAsync();
-        await process.WaitForExitAsync();
+            var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "woodriver.exe",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
+            output = await process!.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+            var regex = MyRegex();
+            output = regex.Replace(output, "");
+        }
+        catch
+        {
+            // ignored
+        }
 
-        var regex = new Regex(@"\x1B\[[0-9;]*[mK]");
-        output = regex.Replace(output, "");
         return output.StartsWith("Woolang ");
+    }
+
+    private async Task<bool> FastInstallWoolangCompiler()
+    {
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            InstallingTitle.Text = "正在获取 Woolang 构建信息...";
+            InstallingSubTitle.Text = "这不会需要很长时间";
+        });
+        var client = new HttpClient();
+        // Read-Only Access Token
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer 7gz8QHnPyB_9HWtyjdfP");
+        var response = await client.GetAsync(new Uri("https://git.cinogama.net/api/v4/projects/68/jobs"));
+        response.EnsureSuccessStatusCode();
+        var jobData = JArray.Parse(await response.Content.ReadAsStringAsync());
+        var jobs = from item in jobData select (JObject)item;
+        var latestBuildId = string.Empty;
+        foreach (var item in jobs)
+        {
+            if (!item["name"]!.ToString().Equals("build_release_win32")) continue;
+            latestBuildId = (string)item["id"]!;
+            break;
+        }
+
+        var latestBuildUrl =
+            $"https://git.cinogama.net/cinogamaproject/woolang/-/jobs/{latestBuildId}/artifacts/download";
+        var downloader = new DownloadService(new DownloadConfiguration
+        {
+            ChunkCount = 8,
+            ParallelDownload = true
+        });
+        downloader.DownloadProgressChanged += async (_, args) =>
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                InstallingTitle.Text = "正在下载 Woolang 编译器...";
+                InstallingSubTitle.Text = $"已下载 {(int)args.ProgressPercentage}%";
+                InstallingProgressBar.Value = args.ProgressPercentage;
+            });
+        };
+        var destinationStream = await downloader.DownloadFileTaskAsync(latestBuildUrl);
+        await using var s = new ZipInputStream(destinationStream);
+
+        while (s.GetNextEntry() is { } theEntry)
+        {
+            var fileName = Path.GetFileName(theEntry.Name);
+
+            if (fileName == string.Empty) continue;
+            await using var streamWriter = File.Create(Path.Combine(InstallationPathBox.Text, fileName));
+            var datBytes = new byte[2048];
+            while (true)
+            {
+                var size = s.Read(datBytes, 0, datBytes.Length);
+                if (size > 0)
+                    streamWriter.Write(datBytes, 0, size);
+                else
+                    break;
+            }
+        }
+
+#pragma warning disable CA1416
+        if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
+#pragma warning restore CA1416
+        {
+            var dialogResult = false;
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var dialog = new Dialog();
+                dialog.InitDialog(Dialog.DialogType.Information, "高级环境变量写入",
+                    "点击\"确认\"会将 Woolang 的环境目录写入至系统环境变量\n" +
+                    "点击\"取消\"则会保持原有设定，写入至用户环境变量。\n" +
+                    "如果您希望为这台计算机上所有用户安装，请写入至系统环境变量。");
+                await dialog.ShowDialog(
+                    (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
+                    .MainWindow);
+                dialogResult = dialog.DialogResult;
+            });
+            if (dialogResult)
+            {
+                var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
+                if (path!.Contains(InstallationPathBox.Text)) return true;
+                path += ";" + InstallationPathBox.Text;
+                Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.Machine);
+            }
+            else
+            {
+                var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                if (path!.Contains(InstallationPathBox.Text)) return true;
+                path += ";" + InstallationPathBox.Text;
+                Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
+            }
+        }
+        else
+        {
+            var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+            if (path!.Contains(InstallationPathBox.Text)) return true;
+            path += ";" + InstallationPathBox.Text;
+            Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
+        }
+
+        return true;
     }
 
     private async Task<bool> InstallWoolangCompiler()
@@ -150,165 +285,203 @@ public partial class WoolCInstallPage : UserControl
 
             if (File.Exists(vswherePath))
             {
-                if (await BuildWoolangCByVs(vswherePath, InstallationPathBox.Text))
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    InstallingProgressBar.IsIndeterminate = true;
+                    InstallingTitle.Text = "正在获取系统信息...";
+                });
+                var process = Process.Start(
+                    new ProcessStartInfo(vswherePath, "-latest -property productPath")
+                    {
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    });
+                var vsPath = (await process!.StandardOutput.ReadToEndAsync()).Trim();
+                await process.WaitForExitAsync();
+                if (vsPath == string.Empty)
+                    return false;
+                vsPath = Path.GetDirectoryName(vsPath)!;
+
+                var cachePath =
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Chief",
+                        "RepositoryCache");
+
+                var repoPath = Path.Combine(cachePath, "WoolangC");
+                if (Directory.Exists(repoPath))
+                {
+                    var directory = new DirectoryInfo(repoPath) { Attributes = FileAttributes.Normal };
+                    foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
+                        info.Attributes = FileAttributes.Normal;
+
+                    Directory.Delete(repoPath, true);
+                }
+
+                Directory.CreateDirectory(repoPath);
+
+                var cmakePath = Path.Combine(vsPath, "CommonExtensions", "Microsoft", "CMake", "CMake", "bin",
+                    "cmake.exe");
+                if (File.Exists(cmakePath))
+                {
+                    await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在获取 Woolang 源码..."; });
+                    try
+                    {
+                        Repository.Clone("https://git.cinogama.net/cinogamaproject/woolang", repoPath);
+                    }
+                    catch (LibGit2SharpException)
+                    {
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            var dialog = new Dialog();
+                            dialog.InitDialog(Dialog.DialogType.Error, "未能成功获取 Woolang 编译器源代码",
+                                "在尝试拉取 Woolang 编译器源代码时出错，请检查网络连接或稍后再试", true);
+                            var window =
+                                (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
+                                .MainWindow;
+                            var control = window.Find<TransitioningContentControl>("ContentControl");
+                            dialog.ShowDialog(window);
+                            control.Content = new WoolCInstallPage();
+                        });
+                        return false;
+                    }
+
+                    var repo = new Repository(repoPath);
+                    var branch = repo.Branches["remotes/origin/release"];
+                    if (branch == null) return false;
+
+                    var currentBranch = Commands.Checkout(repo, branch);
+                    await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在更新依赖模块..."; });
+                    foreach (var submodule in repo.Submodules)
+                    {
+                        var options = new SubmoduleUpdateOptions
+                        {
+                            Init = true
+                        };
+                        repo.Submodules.Update(submodule.Name, options);
+                    }
+
+                    await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在预编译..."; });
+                    var woInfoPath = Path.Combine(repoPath, "src", "wo_info.hpp");
+                    await File.WriteAllTextAsync(woInfoPath, "\"" + currentBranch.Tip.Sha + "\"");
+                    Directory.CreateDirectory(Path.Combine(repoPath, "build"));
+                    File.Delete(Path.Combine(repoPath, "build", "CMakeCache.txt"));
+
+                    process = Process.Start(
+                        new ProcessStartInfo(cmakePath,
+                            ".. -DWO_MAKE_OUTPUT_IN_SAME_PATH=ON -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -DBUILD_SHARED_LIBS=ON")
+                        {
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            WorkingDirectory = Path.Combine(repoPath, "build"),
+                            CreateNoWindow = true,
+                            StandardOutputEncoding = Encoding.Unicode
+                        });
+                    await process!.WaitForExitAsync();
+
+                    await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = string.Empty; });
+                    process = Process.Start(
+                        new ProcessStartInfo(vswherePath, "-latest -property installationPath")
+                        {
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = true
+                        });
+                    var vsInstallationPath = (await process!.StandardOutput.ReadToEndAsync()).Trim();
+                    await process.WaitForExitAsync();
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        InstallingTitle.Text = "正在构建...";
+                        InstallingOutputBox.Text += "\n";
+                    });
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        SwitchControlVisibility(InstallingProgressBar, InstallingOutputBox);
+                    });
+                    var msbuildPath = Path.Combine(vsInstallationPath, "MSBuild", "Current", "Bin", "MSBuild.exe");
+                    process = Process.Start(
+                        new ProcessStartInfo(msbuildPath,
+                            " ./driver/woodriver.vcxproj /p:Configuration=Release -maxCpuCount -m")
+                        {
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true,
+                            WorkingDirectory = Path.Combine(repoPath, "build"),
+                            CreateNoWindow = true
+                        });
+                    process!.OutputDataReceived += (_, args) =>
+                    {
+                        Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            InstallingOutputBox.Text += args.Data + "\n";
+                            InstallingOutputBox.CaretIndex = int.MaxValue;
+                        });
+                    };
+                    process.BeginOutputReadLine();
+                    await process.WaitForExitAsync();
+                    await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在安装..."; });
+                    File.Copy(Path.Combine(repoPath, "build", "Release", "woodriver.exe"),
+                        Path.Combine(InstallationPathBox.Text, "woodriver.exe"), true);
+                    File.Copy(Path.Combine(repoPath, "build", "Release", "libwoo.dll"),
+                        Path.Combine(InstallationPathBox.Text, "libwoo.dll"), true);
+
+#pragma warning disable CA1416
+                    if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
+#pragma warning restore CA1416
+                    {
+                        var dialogResult = false;
+                        await Dispatcher.UIThread.InvokeAsync(async () =>
+                        {
+                            var dialog = new Dialog();
+                            dialog.InitDialog(Dialog.DialogType.Information, "高级环境变量写入",
+                                "点击\"确认\"会将 Woolang 的环境目录写入至系统环境变量\n" +
+                                "点击\"取消\"则会保持原有设定，写入至用户环境变量。\n" +
+                                "如果您希望为这台计算机上所有用户安装，请写入至系统环境变量。");
+                            await dialog.ShowDialog(
+                                (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
+                                .MainWindow);
+                            dialogResult = dialog.DialogResult;
+                        });
+                        if (dialogResult)
+                        {
+                            var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
+                            if (path!.Contains(InstallationPathBox.Text)) return true;
+                            path += ";" + InstallationPathBox.Text;
+                            Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.Machine);
+                        }
+                        else
+                        {
+                            var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                            if (path!.Contains(InstallationPathBox.Text)) return true;
+                            path += ";" + InstallationPathBox.Text;
+                            Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
+                        }
+                    }
+                    else
+                    {
+                        var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                        if (path!.Contains(InstallationPathBox.Text)) return true;
+                        path += ";" + InstallationPathBox.Text;
+                        Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
+                    }
+
                     return true;
-            }
-            else
-            {
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    var dialog = new Dialog();
-                    dialog.InitDialog(Dialog.DialogType.Error, "未能找到 Visual Studio 构建工具",
-                        "构建 Windows 版本的 Woolang 编译器必须使用 Visual Studio 的 MSBuild 构建工具。\n请安装后重试。",
-                        true);
-                    var window = (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
-                        .MainWindow;
-                    var control = window.Find<TransitioningContentControl>("ContentControl");
-                    dialog.ShowDialog(window);
-                    control.Content = new WoolCInstallPage();
-                });
+                }
+
                 return false;
             }
-        }
 
-        return false;
-    }
-
-    private async Task<bool> BuildWoolangCByVs(string vswherePath, string installationPath)
-    {
-        await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在获取系统信息..."; });
-        var process = Process.Start(
-            new ProcessStartInfo(vswherePath, "-latest -property productPath")
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
+                var dialog = new Dialog();
+                dialog.InitDialog(Dialog.DialogType.Error, "未能找到 Visual Studio 构建工具",
+                    "构建 Windows 版本的 Woolang 编译器必须使用 Visual Studio 的 MSBuild 构建工具。\n请安装后重试。",
+                    true);
+                var window = (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
+                    .MainWindow;
+                var control = window.Find<TransitioningContentControl>("ContentControl");
+                dialog.ShowDialog(window);
+                control.Content = new WoolCInstallPage();
             });
-        var vsPath = (await process!.StandardOutput.ReadToEndAsync()).Trim();
-        await process.WaitForExitAsync();
-        if (vsPath == string.Empty)
             return false;
-        vsPath = Path.GetDirectoryName(vsPath)!;
-
-        var cachePath =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Chief",
-                "RepositoryCache");
-
-        var repoPath = Path.Combine(cachePath, "WoolangC");
-        if (Directory.Exists(repoPath))
-        {
-            var directory = new DirectoryInfo(repoPath) { Attributes = FileAttributes.Normal };
-            foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
-                info.Attributes = FileAttributes.Normal;
-
-            Directory.Delete(repoPath, true);
-        }
-
-        Directory.CreateDirectory(repoPath);
-
-        var cmakePath = Path.Combine(vsPath, "CommonExtensions", "Microsoft", "CMake", "CMake", "bin", "cmake.exe");
-        if (File.Exists(cmakePath))
-        {
-            await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在获取 Woolang 源码..."; });
-            try
-            {
-                Repository.Clone("https://git.cinogama.net/cinogamaproject/woolang", repoPath);
-            }
-            catch (LibGit2SharpException)
-            {
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    var dialog = new Dialog();
-                    dialog.InitDialog(Dialog.DialogType.Error, "未能找到 Visual Studio 构建工具",
-                        "构建 Windows 版本的 Woolang 编译器必须使用 Visual Studio 的 MSBuild 构建工具。\n请安装后重试。",
-                        true);
-                    var window = (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!
-                        .MainWindow;
-                    var control = window.Find<TransitioningContentControl>("ContentControl");
-                    dialog.ShowDialog(window);
-                    control.Content = new WoolCInstallPage();
-                });
-                return false;
-            }
-
-            var repo = new Repository(repoPath);
-            var branch = repo.Branches["remotes/origin/release"];
-            if (branch == null) return false;
-
-            var currentBranch = Commands.Checkout(repo, branch);
-            await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在更新依赖模块..."; });
-            foreach (var submodule in repo.Submodules)
-            {
-                var options = new SubmoduleUpdateOptions
-                {
-                    Init = true
-                };
-                repo.Submodules.Update(submodule.Name, options);
-            }
-
-            await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在预编译..."; });
-            var woInfoPath = Path.Combine(repoPath, "src", "wo_info.hpp");
-            await File.WriteAllTextAsync(woInfoPath, "\"" + currentBranch.Tip.Sha + "\"");
-            Directory.CreateDirectory(Path.Combine(repoPath, "build"));
-            File.Delete(Path.Combine(repoPath, "build", "CMakeCache.txt"));
-
-            process = Process.Start(
-                new ProcessStartInfo(cmakePath,
-                    ".. -DWO_MAKE_OUTPUT_IN_SAME_PATH=ON -DCMAKE_BUILD_TYPE=RELWITHDEBINFO -DBUILD_SHARED_LIBS=ON")
-                {
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    WorkingDirectory = Path.Combine(repoPath, "build"),
-                    CreateNoWindow = true,
-                    StandardOutputEncoding = Encoding.Unicode
-                });
-            await process!.WaitForExitAsync();
-
-            await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = string.Empty; });
-            process = Process.Start(
-                new ProcessStartInfo(vswherePath, "-latest -property installationPath")
-                {
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                });
-            var vsInstallationPath = (await process!.StandardOutput.ReadToEndAsync()).Trim();
-            await process.WaitForExitAsync();
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                InstallingTitle.Text = "正在构建...";
-                InstallingOutputBox.Text += "\n";
-            });
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                SwitchControlVisibility(InstallingProgressBar, InstallingOutputBox);
-            });
-            var msbuildPath = Path.Combine(vsInstallationPath, "MSBuild", "Current", "Bin", "MSBuild.exe");
-            process = Process.Start(
-                new ProcessStartInfo(msbuildPath,
-                    " ./driver/woodriver.vcxproj /p:Configuration=Release -maxCpuCount -m")
-                {
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    WorkingDirectory = Path.Combine(repoPath, "build"),
-                    CreateNoWindow = true
-                });
-            process!.OutputDataReceived += (sender, args) =>
-            {
-                Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    InstallingOutputBox.Text += args.Data + "\n";
-                    InstallingOutputBox.CaretIndex = int.MaxValue;
-                });
-            };
-            process.BeginOutputReadLine();
-            await process.WaitForExitAsync();
-            await Dispatcher.UIThread.InvokeAsync(() => { InstallingTitle.Text = "正在安装..."; });
-            File.Copy(Path.Combine(repoPath, "build", "Release", "woodriver.exe"),
-                Path.Combine(installationPath, "woodriver.exe"), true);
-            File.Copy(Path.Combine(repoPath, "build", "Release", "libwoo.dll"),
-                Path.Combine(installationPath, "libwoo.dll"), true);
-            return true;
         }
 
         return false;
@@ -317,13 +490,13 @@ public partial class WoolCInstallPage : UserControl
 
     private void FastInstallButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        IsFastInstall = true;
+        _isFastInstall = true;
         SwitchControlVisibility(InstallModeSelectionPanel, FreshInstallPanel);
     }
 
     private void BuildInstallButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        IsFastInstall = false;
+        _isFastInstall = false;
         SwitchControlVisibility(InstallModeSelectionPanel, FreshInstallPanel);
     }
 
@@ -331,4 +504,7 @@ public partial class WoolCInstallPage : UserControl
     {
         ReturnIndexButton_OnClick(sender, e);
     }
+
+    [GeneratedRegex("\\x1B\\[[0-9;]*[mK]")]
+    private static partial Regex MyRegex();
 }

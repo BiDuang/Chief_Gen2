@@ -33,21 +33,21 @@
                           Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
                 <PathIcon x:Name="NoticeIcon" Data="{DynamicResource star_regular}" Width="25" Height="25"
                           Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
-                <TextBlock x:Name="DialogTitle" Text="对话框" Margin="70,20,0,0" FontFamily="Microsoft YaHei"
+                <TextBlock x:Name="DialogTitle" Text="对话框" Margin="70,20,0,0" 
                            FontSize="20" HorizontalAlignment="Left" />
                 <Button HorizontalAlignment="Right" Margin="0,15,20,0" Width="55" Height="25" Opacity="0.8"
                         x:Name="DialogCloseButton" Click="DialogCloseButton_OnClick">
                     <PathIcon Data="{StaticResource dismiss_regular}" Width="10" Height="10" />
                 </Button>
             </Grid>
-            <TextBlock x:Name="DialogContentBlock" FontFamily="Microsoft YaHei" FontSize="14" Margin="30,80,0,0"
+            <TextBlock x:Name="DialogContentBlock" FontSize="14" Margin="30,80,0,0"
                        Text="内容样式" />
             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.8"
                         Margin="0,0,0,10">
-                <Button x:Name="CancelButton" Content="取消" FontFamily="Microsoft YaHei" FontSize="16"
+                <Button x:Name="CancelButton" Content="取消" FontSize="16"
                         HorizontalContentAlignment="Center" Click="CancelButton_OnClick"
                         Width="80" />
-                <Button x:Name="ConfirmButton" Content="确认" FontFamily="Microsoft YaHei" FontSize="16"
+                <Button x:Name="ConfirmButton" Content="确认" FontSize="16"
                         HorizontalContentAlignment="Center" Background="#174d7f" Click="ConfirmButton_OnClick"
                         Width="80" Margin="10,0,0,0" />
             </StackPanel>
