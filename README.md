@@ -1,9 +1,11 @@
 # Chief_Reloaded
 
 <div align=center>
-<img src="https://git.cinogama.net/cinogamaproject/woolang/-/raw/master/image/woolang_logo.png" width="200" />
+<img alt="Chief_RE Logo" src="https://git.cinogama.net/cinogamaproject/woolang/-/raw/master/image/woolang_logo.png" width="200" />
 <h2>提供便捷、快速的 Woolang、BaoZi、JoyEngineECS 安装与版本控制</h2>
 <h3>(C) BiDuang 2023</h3>
+<img alt="Project Time" src="https://wakatime.com/badge/user/54584642-d17f-456f-9341-29215427f16b/project/70f385fa-9d8a-43ac-aa4d-192f458700fd.svg?style=flat-square"/>
+<img alt="License" src="https://img.shields.io/github/license/BiDuang/Chief_Reloaded?color=%2339c5bb&style=flat-square">
 </div>
 
 ## 功能
@@ -36,15 +38,17 @@ dotnet publish -c Release -r {操作系统环境} --self-contained /p:PublishSin
 
 ## 引用与致谢
 
-在本项目的开发过程中使用或借鉴了以下项目，在此表达感谢:
+在本项目的开发过程中使用或借鉴了以下项目，在此表达感谢 ( 排名不分先后 ):
 
 [Avalonia](https://github.com/AvaloniaUI/Avalonia)
 
 [Downloader](https://github.com/bezzad/Downloader)
 
-[Fluentui Icons](https://github.com/microsoft/fluentui-system-icons)
+[FluentUI Icons](https://github.com/microsoft/fluentui-system-icons)
 
 [Newtonsoft.Json](https://www.newtonsoft.com/json)
+
+[LibGit2Sharp](https://github.com/libgit2/libgit2sharp)
 
 [SharpLibZip](https://github.com/icsharpcode/SharpZipLib)
 
