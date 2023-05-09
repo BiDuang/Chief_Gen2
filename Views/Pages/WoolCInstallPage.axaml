@@ -98,10 +98,10 @@
             <TextBlock Margin="120,0,0,0" FontSize="16"
                        Text="您的设备上有多个已安装的 Woolang 编译器，请指定一个作为更新目标：" />
             <ComboBox x:Name="WoolangComboBox" Width="860" Margin="90,40,0,0"
-                      FontSize="16" />
+                      FontSize="16" SelectionChanged="WoolangComboBox_OnSelectionChanged" />
             <Button x:Name="UpdateWoolangCButton" Margin="0,100,110,0" VerticalContentAlignment="Center"
                     HorizontalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Right" Height="40"
-                    Width="150">
+                    Width="150" Click="UpdateWoolangCButton_OnClick">
                 <TextBlock Text="继续" Margin="5,0,5,0" />
             </Button>
         </Grid>
