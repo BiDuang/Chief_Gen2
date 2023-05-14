@@ -1,0 +1,80 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" Width="1060" Height="600"
+             x:Class="Chief_Reloaded.Views.ComponentUninstallPage">
+    <Grid>
+        <Button Margin="40,50,0,0" CornerRadius="30" VerticalAlignment="Top" HorizontalAlignment="Left"
+                Width="40" Height="40" Opacity="0.7" Background="Transparent" BorderThickness="3"
+                BorderBrush="White" x:Name="ReturnIndexButton" Click="ReturnIndexButton_OnClick">
+            <PathIcon Data="{StaticResource ArrowLeftRegular}" Height="20" Width="20" />
+        </Button>
+        <Grid>
+            <PathIcon Data="{StaticResource DeleteForeverRegular}" HorizontalAlignment="Left" VerticalAlignment="Top"
+                      Margin="110, 55, 0, 0" Width="35" Height="35" />
+            <TextBlock Text="卸载组件" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="160, 50, 0, 0"
+                       FontSize="32" />
+            <Grid x:Name="UninstallPanel" IsVisible="True">
+                <Button VerticalAlignment="Top" Margin="100, 130, 0, 0" VerticalContentAlignment="Center" Width="860"
+                        Height="50" Opacity="0.85" x:Name="UninstallWoolangCButton">
+                    <Grid>
+                        <TextBlock Text="卸载 Woolang 编译器" FontSize="18" Margin="10,0,0,0" />
+                        <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />
+                    </Grid>
+                </Button>
+                <Button VerticalAlignment="Top" Margin="100, 210, 0, 0" VerticalContentAlignment="Center" Width="860"
+                        Height="50" Opacity="0.85" x:Name="UninstallBaoziButton">
+                    <Grid>
+                        <TextBlock Text="卸载 Baozi 包管理器" FontSize="18" Margin="10,0,0,0" />
+                        <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />
+                    </Grid>
+                </Button>
+                <Button VerticalAlignment="Top" Margin="100, 290, 0, 0" VerticalContentAlignment="Center" Width="860"
+                        Height="50" Opacity="0.85" x:Name="UninstallJoyecsButton">
+                    <Grid>
+                        <TextBlock Text="卸载 JoyEngine ECS 引擎" FontSize="18" Margin="10,0,0,0" />
+                        <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />
+                    </Grid>
+                </Button>
+            </Grid>
+            <Grid x:Name="UninstallSelectionPanel" IsVisible="False">
+                <Button VerticalAlignment="Top" Margin="100, 130, 0, 0" VerticalContentAlignment="Center" Width="860"
+                        Height="50" Opacity="0.85" x:Name="ReturnUninstallMenuButton">
+                    <Grid>
+                        <TextBlock x:Name="UninstallTitle" Text="卸载" FontSize="18" Margin="30,0,0,0" />
+                        <PathIcon HorizontalAlignment="Left" Data="{DynamicResource ChevronLeftRegular}" />
+                    </Grid>
+                </Button>
+                <TextBlock Margin="120, 200, 0, 0" Text="如果安装位置下还有其它依赖环境变量工作的程序，请不要移除其环境变量。" FontSize="18" />
+                <ComboBox Margin="120, 250, 0, 0" Width="640" />
+                <CheckBox Margin="780,250,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Content="将环境变量一并移除" />
+                <Button VerticalAlignment="Top" Margin="100, 320, 0, 0" VerticalContentAlignment="Center" Width="860"
+                        Height="50" Opacity="0.85" x:Name="ConfirmUninstallButton" Background="{DynamicResource SystemAccentColorDark2}">
+                    <Grid>
+                        <TextBlock Text="开始卸载" FontSize="18" Margin="10,0,0,0" />
+                        <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />
+                    </Grid>
+                </Button>
+            </Grid>
+            <Grid x:Name="EmptyPanel" IsVisible="False">
+                <PathIcon Data="{StaticResource EmptyBoxRegular}" Height="60" Width="60" HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Margin="0,0, 0, 110" />
+                <TextBlock Text="没有找到任何可供卸载的组件" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Margin="0,0, 0, 0" FontSize="18" />
+            </Grid>
+            <PathIcon Data="{StaticResource BroomRegular}" HorizontalAlignment="Left" VerticalAlignment="Top"
+                      Margin="110, 395, 0, 0" Width="35" Height="35" />
+            <TextBlock Text="清理缓存" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="160, 390, 0, 0"
+                       FontSize="32" />
+            <Button VerticalAlignment="Top" Margin="100, 460, 0, 0" VerticalContentAlignment="Center" Width="860"
+                    Height="50" Opacity="0.85" x:Name="CleanChiefCache">
+                <Grid>
+                    <TextBlock Text="删除 Chief 缓存" FontSize="18" Margin="10,0,0,0" />
+                    <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />
+                </Grid>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

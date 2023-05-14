@@ -4,7 +4,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" Width="550" Height="250"
         x:Class="Chief_Reloaded.Views.Dialog"
-
+        
+        BorderBrush="{DynamicResource SystemAccentColor}"
+        BorderThickness="3"
         WindowStartupLocation="CenterScreen"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur"
@@ -25,19 +27,19 @@
         </ExperimentalAcrylicBorder>
         <Grid>
             <Grid VerticalAlignment="Top" Opacity="0.85">
-                <PathIcon x:Name="ErrorIcon" Data="{DynamicResource error_circle_regular}" Width="25" Height="25"
+                <PathIcon x:Name="ErrorIcon" Data="{DynamicResource ErrorCircleRegular}" Width="25" Height="25"
                           Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
-                <PathIcon x:Name="WarningIcon" Data="{DynamicResource warning_regular}" Width="25" Height="25"
+                <PathIcon x:Name="WarningIcon" Data="{DynamicResource WarningRegular}" Width="25" Height="25"
                           Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
-                <PathIcon x:Name="InfoIcon" Data="{DynamicResource info_regular}" Width="25" Height="25"
+                <PathIcon x:Name="InfoIcon" Data="{DynamicResource InfoRegular}" Width="25" Height="25"
                           Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
-                <PathIcon x:Name="NoticeIcon" Data="{DynamicResource star_regular}" Width="25" Height="25"
+                <PathIcon x:Name="NoticeIcon" Data="{DynamicResource StarRegular}" Width="25" Height="25"
                           Margin="30,20,0,0" IsVisible="False" HorizontalAlignment="Left" />
                 <TextBlock x:Name="DialogTitle" Text="对话框" Margin="70,20,0,0" 
                            FontSize="20" HorizontalAlignment="Left" />
                 <Button HorizontalAlignment="Right" Margin="0,15,20,0" Width="55" Height="25" Opacity="0.8"
                         x:Name="DialogCloseButton" Click="DialogCloseButton_OnClick">
-                    <PathIcon Data="{StaticResource dismiss_regular}" Width="10" Height="10" />
+                    <PathIcon Data="{StaticResource DismissRegular}" Width="10" Height="10" />
                 </Button>
             </Grid>
             <TextBlock x:Name="DialogContentBlock" FontSize="14" Margin="30,80,0,0"
