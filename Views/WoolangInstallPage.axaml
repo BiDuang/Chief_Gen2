@@ -3,23 +3,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" Width="1060" Height="600"
-             x:Class="Chief_Reloaded.Views.Pages.WoolCInstallPage">
+             x:Class="Chief_Reloaded.Views.WoolCInstallPage">
     <Grid x:Name="MainGrid">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Button Margin="30,30,0,0" CornerRadius="30"
                     Width="40" Height="40" Opacity="0.7" Background="Transparent" BorderThickness="3"
                     BorderBrush="White" x:Name="ReturnLastButton" Click="ReturnLastButton_OnClick">
-                <PathIcon Data="{StaticResource arrow_left_regular}" Height="20" Width="20" />
+                <PathIcon Data="{StaticResource ArrowLeftRegular}" Height="20" Width="20" />
             </Button>
             <Button Margin="15,30,15,0" CornerRadius="30"
                     Width="40" Height="40" Opacity="0.7" Background="Transparent" BorderThickness="3"
                     BorderBrush="White" x:Name="ReturnIndexButton" Click="ReturnIndexButton_OnClick">
-                <PathIcon Data="{StaticResource arrow_down_regular}" Height="20" Width="20" />
+                <PathIcon Data="{StaticResource ArrowDownRegular}" Height="20" Width="20" />
             </Button>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,35,0,0" x:Name="ModuleText"
                        Text="Woolang 编译器" FontSize="22" FontWeight="Bold" Opacity="0.6" />
             <Grid x:Name="Crumbs" IsVisible="False">
-                <PathIcon Data="{StaticResource chevron_right_regular}" Height="20" Width="20" Margin="0,32,40,0"
+                <PathIcon Data="{StaticResource ChevronRightRegular}" Height="20" Width="20" Margin="0,32,40,0"
                           Opacity="0.3" />
                 <TextBlock HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,35,0,0" x:Name="ModeText"
                            Text="更新" FontSize="22" FontWeight="Bold" Opacity="0.6" />
@@ -31,7 +31,7 @@
             <Button x:Name="UpdateWoolangC" Margin="90,40,0,0" VerticalContentAlignment="Center"
                     VerticalAlignment="Top" HorizontalAlignment="Left" Height="40" Click="UpdateWoolangC_OnClick">
                 <StackPanel Orientation="Horizontal">
-                    <PathIcon Data="{StaticResource keyboard_shift_uppercase_regular}" />
+                    <PathIcon Data="{StaticResource KeyboardShiftUppercaseRegular}" />
                     <TextBlock Text="更新现有 Woolang 编译器" Margin="5,0,5,0" />
                 </StackPanel>
             </Button>
@@ -40,7 +40,7 @@
             <Button x:Name="InstallWoolangC" Margin="90,140,0,0" VerticalContentAlignment="Center"
                     VerticalAlignment="Top" HorizontalAlignment="Left" Height="40" Click="InstallWoolangC_OnClick">
                 <StackPanel Orientation="Horizontal">
-                    <PathIcon Data="{StaticResource apps_regular}" />
+                    <PathIcon Data="{StaticResource AppsRegular}" />
                     <TextBlock Text="全新安装 Woolang 编译器" Margin="5,0,5,0" />
                 </StackPanel>
             </Button>
@@ -55,7 +55,7 @@
                          Margin="90,0,0,0" />
                 <Button Width="100" Height="35" HorizontalAlignment="Right" Margin="0,0,80,0"
                         x:Name="OpenFolderDialogButton" Click="OpenFolderDialogButton_OnClick">
-                    <PathIcon Data="{StaticResource folder_add_regular}" Height="20" Width="20" />
+                    <PathIcon Data="{StaticResource FolderAddRegular}" Height="20" Width="20" />
                 </Button>
             </Grid>
             <Button Width="125" Height="35" HorizontalAlignment="Right" Margin="0,20,80,0"
@@ -74,7 +74,7 @@
                             <TextBlock
                                 Text="从服务器下载并安装已构建好的最新发行版本 Woolang 编译器" />
                         </ToolTip.Tip>
-                        <PathIcon Data="{StaticResource cloud_download_regular}" Width="60" Height="60" />
+                        <PathIcon Data="{StaticResource CloudDownloadRegular}" Width="60" Height="60" />
                         <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="快速安装"
                                    FontSize="18" />
                     </Grid>
@@ -86,7 +86,7 @@
                             <TextBlock
                                 Text="从服务器获取源码，在本地编译、构建并安装任一版本的 Woolang 编译器" />
                         </ToolTip.Tip>
-                        <PathIcon Data="{StaticResource window_dev_tools_regular}" Width="60" Height="60" />
+                        <PathIcon Data="{StaticResource WindowDevToolsRegular}" Width="60" Height="60" />
                         <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="编译安装"
                                    FontSize="18" />
                     </Grid>
@@ -94,7 +94,7 @@
             </StackPanel>
         </Grid>
         <Grid VerticalAlignment="Center" x:Name="MultiWoolCPanel" IsVisible="False">
-            <PathIcon Data="{StaticResource search_info_regular}" Height="20" Width="20" Margin="0,0,860,115" />
+            <PathIcon Data="{StaticResource SearchInfoRegular}" Height="20" Width="20" Margin="0,0,860,115" />
             <TextBlock Margin="120,0,0,0" FontSize="16"
                        Text="您的设备上有多个已安装的 Woolang 编译器，请指定一个作为更新目标：" />
             <ComboBox x:Name="WoolangComboBox" Width="860" Margin="90,40,0,0"

@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" Width="1060" Height="600"
-             x:Class="Chief_Reloaded.Views.Pages.MainPage">
+             x:Class="Chief_Reloaded.Views.MainPage">
     <Grid>
         <Grid>
             <TextBlock Text="欢迎使用 Chief" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50, 30, 0, 0"
@@ -17,41 +17,42 @@
                 <Button Width="220" Height="400" Opacity="0.7" x:Name="WoolCInstallButton"
                         Click="WoolCInstallButton_OnClick">
                     <Grid>
-                        <PathIcon Data="{StaticResource wrench_regular}" Width="60" Height="60" />
+                        <PathIcon Data="{StaticResource WrenchRegular}" Width="60" Height="60" />
                         <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="Woolang 编译器"
                                    FontSize="18" />
                     </Grid>
                 </Button>
                 <Button Width="220" Height="400" Opacity="0.7" Margin="30,0,0,0">
                     <Grid>
-                        <PathIcon Data="{StaticResource apps_add_in_regular}" Width="60" Height="60" />
+                        <PathIcon Data="{StaticResource AppsAddInRegular}" Width="60" Height="60" />
                         <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="BaoZi 包管理器"
                                    FontSize="18" />
                     </Grid>
                 </Button>
                 <Button Width="220" Height="400" Opacity="0.7" Margin="30,0,0,0">
                     <Grid>
-                        <PathIcon Data="{StaticResource rocket_regular}" Width="60" Height="60" />
+                        <PathIcon Data="{StaticResource RocketRegular}" Width="60" Height="60" />
                         <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Center" Text="JoyEngineECS 引擎"
                                    FontSize="18" />
                     </Grid>
                 </Button>
             </StackPanel>
             <StackPanel Orientation="Vertical" Margin="740,40,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-                <Border BorderBrush="Gray" BorderThickness="2,2,2,0" CornerRadius="3,3,0,0">
-                    <Grid Opacity="0.62" Background="#5f5f5f">
+                <Border BorderBrush="Gray" BorderThickness="2,2,2,0" CornerRadius="3,3,0,0" Opacity="0.7">
+                    <Grid Opacity="0.7" Background="#5f5f5f">
                         <TextBlock Width="225" Height="35" TextAlignment="Center" Text="开发者新闻"
                                    FontWeight="Bold" FontSize="18" Margin="0,15,0,0" />
                     </Grid>
                 </Border>
                 <Border BorderBrush="Gray" BorderThickness="2,0,2,2" CornerRadius="0,0,3,3"
-                        Background="#5f5f5f">
+                        Background="#5f5f5f" Opacity="0.7">
                     <ListBox Width="225" Height="300" Opacity="0.7" x:Name="NewsList">
                         <ListBoxItem>窝窝头又咕咕了, 嗝!</ListBoxItem>
                     </ListBox>
                 </Border>
                 <Button Margin="0,10,0,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                        Height="35" Width="225" Content="卸载已安装的组件" Background="#fe6d6d" Opacity="0.75" />
+                        Height="35" Width="225" Content="卸载已安装的组件" Background="#fe6d6d" Opacity="0.75"
+                        x:Name="ComponentUninstallButton" Click="ComponentUninstallButton_OnClick" />
             </StackPanel>
         </Grid>
     </Grid>

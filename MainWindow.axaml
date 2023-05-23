@@ -1,33 +1,25 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:Chief_Reloaded.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" Width="1060" Height="600"
-        x:Class="Chief_Reloaded.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        x:Class="Chief_Reloaded.MainWindow"
 
+        Title="Chief_Reloaded"
         WindowStartupLocation="CenterScreen"
         Background="Transparent"
         TransparencyLevelHint="AcrylicBlur"
         CanResize="False"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="NoChrome"
-        ExtendClientAreaTitleBarHeightHint="-1"
-        Title="Chief_Reloaded">
-
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel />
-    </Design.DataContext>
+        ExtendClientAreaTitleBarHeightHint="-1">
 
     <Grid>
         <ExperimentalAcrylicBorder IsHitTestVisible="False">
             <ExperimentalAcrylicBorder.Material>
                 <ExperimentalAcrylicMaterial
                     BackgroundSource="Digger"
-                    TintColor="Black"
+                    TintColor="#FF000000"
                     TintOpacity="1"
                     MaterialOpacity="0.65" />
             </ExperimentalAcrylicBorder.Material>
@@ -35,22 +27,21 @@
 
         <Grid>
             <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"
-                    Width="55" Height="25" Opacity="0.8" x:Name="WindowCloseButton"
-                    Command="{Binding OnWindowCloseCommand}">
-                <PathIcon Data="{StaticResource dismiss_regular}" Width="10" Height="10" />
+                    Width="55" Height="25" Opacity="0.8" x:Name="WindowCloseButton" Click="WindowCloseButton_OnClick">
+                <PathIcon Data="{StaticResource DismissRegular}" Width="10" Height="10" />
             </Button>
             <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="70, 10"
                     Width="40" Height="25" Opacity="0.7" x:Name="WindowMinimizeButton"
-                    Command="{Binding OnWindowMinimizeCommand}">
-                <PathIcon Data="{StaticResource line_horizontal_1_regular}" Width="10" Height="10" Margin="0,10,0,0" />
+                    Click="WindowMinimizeButton_OnClick">
+                <PathIcon Data="{StaticResource LineHorizontal1Regular}" Width="10" Height="10" Margin="0,10,0,0" />
             </Button>
             <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,115,0"
                     Width="30" Height="25" Opacity="0.7" x:Name="SettingsButton">
-                <PathIcon Data="{StaticResource settings_regular}" Width="10" Height="10" />
+                <PathIcon Data="{StaticResource SettingsRegular}" Width="10" Height="10" />
             </Button>
         </Grid>
 
-        <TransitioningContentControl x:Name="ContentControl" Content="">
+        <TransitioningContentControl x:Name="ContentControl">
             <TransitioningContentControl.PageTransition>
                 <CrossFade Duration="00:00:00.500" />
             </TransitioningContentControl.PageTransition>

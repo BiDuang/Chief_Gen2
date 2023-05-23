@@ -14,19 +14,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.0.0-preview8" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview8" />
+        <PackageReference Include="Avalonia" Version="11.0.999-cibuild0035131-beta"/>
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.999-cibuild0035131-beta"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0-preview8" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview8" />
-        <PackageReference Include="Downloader" Version="3.0.4" />
-        <PackageReference Include="LibGit2Sharp" Version="0.27.2" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="SharpZipLib" Version="1.4.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Utils\" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.999-cibuild0035131-beta"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.999-cibuild0035131-beta"/>
+        <PackageReference Include="Downloader" Version="3.0.4"/>
+        <PackageReference Include="LibGit2Sharp" Version="0.27.2"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageReference Include="SharpZipLib" Version="1.4.2"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -14,5 +14,11 @@
         <Style Selector="TextBox">
             <Setter Property="FontFamily" Value="Microsoft YaHei, WenQuanYi Micro Hei" />
         </Style>
+        <Style Selector="CheckBox">
+            <Setter Property="FontFamily" Value="Microsoft YaHei, WenQuanYi Micro Hei" />
+        </Style>
+        <Style Selector="ComboBox">
+            <Setter Property="FontFamily" Value="Microsoft YaHei, WenQuanYi Micro Hei" />
+        </Style>
     </Application.Styles>
 </Application>

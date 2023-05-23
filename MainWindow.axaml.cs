@@ -1,8 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Chief_Reloaded.Views;
+using Controls = Chief_Reloaded.Views.Controls;
 
 namespace Chief_Reloaded;
 
@@ -19,12 +19,11 @@ public partial class MainWindow : Window
 
     private void WindowCloseButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!.MainWindow!.Close();
+        Controls.GetMainWindow()!.Close();
     }
 
     private void WindowMinimizeButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        (Application.Current!.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)!.MainWindow!.WindowState =
-            WindowState.Minimized;
+        Controls.GetMainWindow()!.WindowState = WindowState.Minimized;
     }
 }

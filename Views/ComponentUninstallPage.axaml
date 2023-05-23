@@ -17,21 +17,22 @@
                        FontSize="32" />
             <Grid x:Name="UninstallPanel" IsVisible="True">
                 <Button VerticalAlignment="Top" Margin="100, 130, 0, 0" VerticalContentAlignment="Center" Width="860"
-                        Height="50" Opacity="0.85" x:Name="UninstallWoolangCButton">
+                        Height="50" Opacity="0.85" x:Name="UninstallWoolangCButton"
+                        Click="UninstallWoolangCButton_OnClick">
                     <Grid>
                         <TextBlock Text="卸载 Woolang 编译器" FontSize="18" Margin="10,0,0,0" />
                         <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />
                     </Grid>
                 </Button>
                 <Button VerticalAlignment="Top" Margin="100, 210, 0, 0" VerticalContentAlignment="Center" Width="860"
-                        Height="50" Opacity="0.85" x:Name="UninstallBaoziButton">
+                        Height="50" Opacity="0.85" x:Name="UninstallBaoziButton" IsVisible="False">
                     <Grid>
                         <TextBlock Text="卸载 Baozi 包管理器" FontSize="18" Margin="10,0,0,0" />
                         <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />
                     </Grid>
                 </Button>
                 <Button VerticalAlignment="Top" Margin="100, 290, 0, 0" VerticalContentAlignment="Center" Width="860"
-                        Height="50" Opacity="0.85" x:Name="UninstallJoyecsButton">
+                        Height="50" Opacity="0.85" x:Name="UninstallJoyecsButton" IsVisible="False">
                     <Grid>
                         <TextBlock Text="卸载 JoyEngine ECS 引擎" FontSize="18" Margin="10,0,0,0" />
                         <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />
@@ -40,17 +41,25 @@
             </Grid>
             <Grid x:Name="UninstallSelectionPanel" IsVisible="False">
                 <Button VerticalAlignment="Top" Margin="100, 130, 0, 0" VerticalContentAlignment="Center" Width="860"
-                        Height="50" Opacity="0.85" x:Name="ReturnUninstallMenuButton">
+                        Height="50" Opacity="0.85" x:Name="ReturnUninstallMenuButton"
+                        Click="ReturnUninstallMenuButton_OnClick">
                     <Grid>
                         <TextBlock x:Name="UninstallTitle" Text="卸载" FontSize="18" Margin="30,0,0,0" />
                         <PathIcon HorizontalAlignment="Left" Data="{DynamicResource ChevronLeftRegular}" />
                     </Grid>
                 </Button>
                 <TextBlock Margin="120, 200, 0, 0" Text="如果安装位置下还有其它依赖环境变量工作的程序，请不要移除其环境变量。" FontSize="18" />
-                <ComboBox Margin="120, 250, 0, 0" Width="640" />
-                <CheckBox Margin="780,250,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Content="将环境变量一并移除" />
+                <ComboBox Margin="120, 250, 0, 0" Width="640" x:Name="UninstallPathComboBox" />
+                <CheckBox Margin="780,250,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Content="将环境变量一并移除"
+                          x:Name="RemoveEnvPathCheckBox">
+                    <ToolTip.Tip>
+                        <TextBlock Text="默认删除用户变量中的路径，若要删除机器的环境变量，请以管理员权限运行本程序" x:Name="RemoveEnvPathTips" />
+                    </ToolTip.Tip>
+                </CheckBox>
                 <Button VerticalAlignment="Top" Margin="100, 320, 0, 0" VerticalContentAlignment="Center" Width="860"
-                        Height="50" Opacity="0.85" x:Name="ConfirmUninstallButton" Background="{DynamicResource SystemAccentColorDark2}">
+                        Click="ConfirmUninstallButton_OnClick"
+                        Height="50" Opacity="0.85" x:Name="ConfirmUninstallButton"
+                        Background="{DynamicResource SystemAccentColorDark2}">
                     <Grid>
                         <TextBlock Text="开始卸载" FontSize="18" Margin="10,0,0,0" />
                         <PathIcon HorizontalAlignment="Right" Data="{DynamicResource ChevronRightRegular}" />

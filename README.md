@@ -26,7 +26,7 @@
 
 ### 从源码构建
 
-拉取源码到本地，使用 `Visual Studio 2019+` 或 `JetBrains Rider 2023.1+` 还原项目依赖环境后构建。
+拉取源码到本地，使用 `Visual Studio 2019+` 或 `JetBrains Rider 2020.2+` 还原项目依赖环境后构建。
 
 供参考的构建指令:
 
@@ -50,7 +50,7 @@ dotnet publish -c Release -r {操作系统环境} --self-contained /p:PublishSin
 
 [LibGit2Sharp](https://github.com/libgit2/libgit2sharp)
 
-[SharpLibZip](https://github.com/icsharpcode/SharpZipLib)
+[SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
 
 [Woolang](https://git.cinogama.net/cinogamaproject/woolang),
 [BaoZi](https://git.cinogama.net/cinogamaproject/woolangpackages/baozi)
