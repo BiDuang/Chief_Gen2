@@ -186,16 +186,33 @@ public partial class WoolCInstallPage : UserControl
 
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
+            InstallingProgressBar.IsIndeterminate = true;
             InstallingTitle.Text = "正在获取 Woolang 构建信息...";
             InstallingSubTitle.Text = "这不会需要很长时间";
         });
         var client = new HttpClient();
         // Read-Only Access Token
         client.DefaultRequestHeaders.Add("Authorization", @"Bearer 7gz8QHnPyB_9HWtyjdfP");
-        var response = await client.GetAsync(new Uri("https://git.cinogama.net/api/v4/projects/68/jobs"));
-        response.EnsureSuccessStatusCode();
-        var jobData = JArray.Parse(await response.Content.ReadAsStringAsync());
-        var jobs = from item in jobData select (JObject)item;
+
+        IEnumerable<JObject> jobs;
+        try
+        {
+            var response = await client.GetAsync(new Uri("https://git.cinogama.net/api/v4/projects/68/jobs"));
+            response.EnsureSuccessStatusCode();
+            var jobData = JArray.Parse(await response.Content.ReadAsStringAsync());
+            jobs = from item in jobData select (JObject)item;
+        }
+        catch
+        {
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var dialog = new Dialog();
+                dialog.InitDialog(Dialog.DialogType.Error, "下载时出错", "尝试下载 Woolang 构建包时出错，\n请检查网络连接后重试。", true);
+                await dialog.ShowDialog(Controls.GetMainWindow()!);
+            });
+            return false;
+        }
+
         var latestBuildId = string.Empty;
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             foreach (var item in jobs)
@@ -220,7 +237,13 @@ public partial class WoolCInstallPage : UserControl
             ParallelDownload = true
         });
         var installationPath = string.Empty;
-        await Dispatcher.UIThread.InvokeAsync(() => { installationPath = InstallationPathBox.Text!; });
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            InstallingTitle.Text = "正在下载 Woolang 编译器...";
+            InstallingSubTitle.Text = "下载将很快开始...";
+            installationPath = InstallationPathBox.Text!;
+            InstallingProgressBar.IsIndeterminate = false;
+        });
         downloader.DownloadProgressChanged += async (_, args) =>
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -269,34 +292,40 @@ public partial class WoolCInstallPage : UserControl
                 });
                 if (dialogResult)
                 {
-                    var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
-                    if (path!.Contains(Path.Combine(installationPath) + "/")) return true;
-                    if (path.EndsWith(";"))
-                        path += Path.Combine(installationPath) + "/";
+                    var envPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Machine);
+                    if (string.IsNullOrEmpty(envPath)) return true;
+                    if (envPath.Split(";").Any(path => path == installationPath.Replace("/", "\\"))) return true;
+
+                    if (envPath.EndsWith(";"))
+                        envPath += installationPath.Replace("/", "\\");
                     else
-                        path += ";" + Path.Combine(installationPath) + "/";
-                    Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.Machine);
+                        envPath += ";" + installationPath.Replace("/", "\\");
+                    Environment.SetEnvironmentVariable("PATH", envPath, EnvironmentVariableTarget.Machine);
                 }
                 else
                 {
-                    var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-                    if (path!.Contains(Path.Combine(installationPath) + "/")) return true;
-                    if (path.EndsWith(";"))
-                        path += Path.Combine(installationPath) + "/";
+                    var envPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                    if (string.IsNullOrEmpty(envPath)) return true;
+                    if (envPath.Split(";").Any(path => path == installationPath.Replace("/", "\\"))) return true;
+
+                    if (envPath.EndsWith(";"))
+                        envPath += installationPath.Replace("/", "\\");
                     else
-                        path += ";" + Path.Combine(installationPath) + "/";
-                    Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
+                        envPath += ";" + installationPath.Replace("/", "\\");
+                    Environment.SetEnvironmentVariable("PATH", envPath, EnvironmentVariableTarget.User);
                 }
             }
             else
             {
-                var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-                if (path!.Contains(Path.Combine(installationPath) + "/")) return true;
-                if (path.EndsWith(";"))
-                    path += Path.Combine(installationPath) + "/";
+                var envPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                if (string.IsNullOrEmpty(envPath)) return true;
+                if (envPath.Split(";").Any(path => path == installationPath.Replace("/", "\\"))) return true;
+
+                if (envPath.EndsWith(";"))
+                    envPath += installationPath.Replace("/", "\\");
                 else
-                    path += ";" + Path.Combine(installationPath) + "/";
-                Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
+                    envPath += ";" + installationPath.Replace("/", "\\");
+                Environment.SetEnvironmentVariable("PATH", envPath, EnvironmentVariableTarget.User);
             }
         }
         else
@@ -501,35 +530,45 @@ public partial class WoolCInstallPage : UserControl
                             });
                             if (dialogResult)
                             {
-                                var path = Environment.GetEnvironmentVariable("PATH",
+                                var envPath = Environment.GetEnvironmentVariable("PATH",
                                     EnvironmentVariableTarget.Machine);
-                                if (path!.Contains(Path.Combine(installationPath) + "/")) return true;
-                                if (path.EndsWith(";"))
-                                    path += Path.Combine(installationPath) + "/";
+                                if (string.IsNullOrEmpty(envPath)) return true;
+                                if (envPath.Split(";").Any(path => path == installationPath.Replace("/", "\\")))
+                                    return true;
+
+                                if (envPath.EndsWith(";"))
+                                    envPath += installationPath.Replace("/", "\\");
                                 else
-                                    path += ";" + Path.Combine(installationPath) + "/";
-                                Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.Machine);
+                                    envPath += ";" + installationPath.Replace("/", "\\");
+                                Environment.SetEnvironmentVariable("PATH", envPath, EnvironmentVariableTarget.Machine);
                             }
                             else
                             {
-                                var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-                                if (path!.Contains(Path.Combine(installationPath) + "/")) return true;
-                                if (path.EndsWith(";"))
-                                    path += Path.Combine(installationPath) + "/";
+                                var envPath =
+                                    Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                                if (string.IsNullOrEmpty(envPath)) return true;
+                                if (envPath.Split(";").Any(path => path == installationPath.Replace("/", "\\")))
+                                    return true;
+
+                                if (envPath.EndsWith(";"))
+                                    envPath += installationPath.Replace("/", "\\");
                                 else
-                                    path += ";" + Path.Combine(installationPath) + "/";
-                                Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
+                                    envPath += ";" + installationPath.Replace("/", "\\");
+                                Environment.SetEnvironmentVariable("PATH", envPath, EnvironmentVariableTarget.User);
                             }
                         }
                         else
                         {
-                            var path = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
-                            if (path!.Contains(Path.Combine(installationPath) + "/")) return true;
-                            if (path.EndsWith(";"))
-                                path += Path.Combine(installationPath) + "/";
+                            var envPath = Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.User);
+                            if (string.IsNullOrEmpty(envPath)) return true;
+                            if (envPath.Split(";").Any(path => path == installationPath.Replace("/", "\\")))
+                                return true;
+
+                            if (envPath.EndsWith(";"))
+                                envPath += installationPath.Replace("/", "\\");
                             else
-                                path += ";" + Path.Combine(installationPath) + "/";
-                            Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.User);
+                                envPath += ";" + installationPath.Replace("/", "\\");
+                            Environment.SetEnvironmentVariable("PATH", envPath, EnvironmentVariableTarget.User);
                         }
                     }
                     else

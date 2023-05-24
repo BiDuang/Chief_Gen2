@@ -15,16 +15,8 @@
         ExtendClientAreaTitleBarHeightHint="-1">
 
     <Grid>
-        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial
-                    BackgroundSource="Digger"
-                    TintColor="#FF000000"
-                    TintOpacity="1"
-                    MaterialOpacity="0.65" />
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
-
+        <ExperimentalAcrylicBorder x:Name="ExperimentalAcrylicBorder" />
+        
         <Grid>
             <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"
                     Width="55" Height="25" Opacity="0.8" x:Name="WindowCloseButton" Click="WindowCloseButton_OnClick">
