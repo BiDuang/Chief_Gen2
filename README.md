@@ -28,6 +28,8 @@
 
 拉取源码到本地，使用 `Visual Studio 2019+` 或 `JetBrains Rider 2020.2+` 还原项目依赖环境后构建。
 
+还原依赖包需要为 NuGet 添加 Avalonia Nightly 的依赖通道：[请参阅此处来添加](https://github.com/AvaloniaUI/Avalonia/wiki/Using-nightly-build-feed)。
+
 供参考的构建指令:
 
 ```bash
