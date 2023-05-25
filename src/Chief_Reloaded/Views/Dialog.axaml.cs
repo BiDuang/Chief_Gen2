@@ -20,7 +20,12 @@ public partial class Dialog : Window
         InitializeComponent();
     }
 
-    public void InitDialog(DialogType type, string title, string content, bool isConfirmOnly = false)
+    public void InitDialog(
+        DialogType type,
+        string title,
+        string content,
+        bool isConfirmOnly = false
+    )
     {
         DialogTitle.Text = title;
         DialogContentBlock.Text = content;
@@ -40,7 +45,8 @@ public partial class Dialog : Window
                 break;
         }
 
-        if (isConfirmOnly) CancelButton.IsVisible = false;
+        if (isConfirmOnly)
+            CancelButton.IsVisible = false;
     }
 
     private void ConfirmButton_OnClick(object? sender, RoutedEventArgs e)

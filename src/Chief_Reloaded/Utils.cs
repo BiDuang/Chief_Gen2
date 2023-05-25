@@ -17,14 +17,16 @@ public static partial class Utils
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
-                var process = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "where.exe",
-                    Arguments = "woodriver.exe",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                });
+                var process = Process.Start(
+                    new ProcessStartInfo
+                    {
+                        FileName = "where.exe",
+                        Arguments = "woodriver.exe",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                );
                 result = (await process!.StandardOutput.ReadToEndAsync()).Split("\r\n").ToList();
                 result.RemoveAll(x => !x.EndsWith("woodriver.exe"));
                 for (var i = 0; i < result.Count; i++)
@@ -36,15 +38,19 @@ public static partial class Utils
             }
             else
             {
-                var process = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "whereis",
-                    Arguments = "woodriver",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                });
-                result = (await process!.StandardOutput.ReadToEndAsync()).Replace("woodriver: ", "").Split("\n")
+                var process = Process.Start(
+                    new ProcessStartInfo
+                    {
+                        FileName = "whereis",
+                        Arguments = "woodriver",
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                );
+                result = (await process!.StandardOutput.ReadToEndAsync())
+                    .Replace("woodriver: ", "")
+                    .Split("\n")
                     .ToList();
                 result.RemoveAll(x => !x.EndsWith("woodriver"));
                 foreach (var item in result)
@@ -68,13 +74,15 @@ public static partial class Utils
         var output = string.Empty;
         try
         {
-            var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = "woodriver.exe",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            });
+            var process = Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = "woodriver.exe",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            );
             output = await process!.StandardOutput.ReadToEndAsync();
             await process.WaitForExitAsync();
             output = RemoveColorCharsRegex().Replace(output, "");
