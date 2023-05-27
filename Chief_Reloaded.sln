@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chief_Reloaded", "Chief_Reloaded.csproj", "{E7857690-127F-462F-BFC8-352FF4D25074}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chief_Reloaded", "src\Chief_Reloaded\Chief_Reloaded.csproj", "{E7857690-127F-462F-BFC8-352FF4D25074}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
